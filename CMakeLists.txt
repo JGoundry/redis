@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 3.31)
 project(redis)
 
-# Compiler
-set(CMAKE_C_COMPILER            /usr/bin/clang)
-set(CMAKE_CXX_COMPILER          /usr/bin/clang++)
-
 # C++ standard
 set(CMAKE_CXX_STANDARD          20)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
