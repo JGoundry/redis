@@ -12,8 +12,8 @@ set(CLIENT client)
 
 # Library vars
 set(BOOST_MIN_VERSION         1.87)
-set(BOOST_REQUIRED_COMPONENTS container)
-set(BOOST_TARGET_LIBS         Boost::container)
+set(BOOST_REQUIRED_COMPONENTS container system regex)
+set(BOOST_TARGET_LIBS         Boost::container Boost::system Boost::regex)
 
 # Files
 file(GLOB SERVER_SOURCE_FILES src/*.cpp)
@@ -23,4 +23,5 @@ add_executable(${SERVER} ${SERVER_SOURCE_FILES})
 
 # Packages
 find_package(Boost ${BOOST_MIN_VERSION} REQUIRED COMPONENTS ${BOOST_REQUIRED_COMPONENTS})
+target_include_directories(${SERVER} PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(${SERVER} PRIVATE ${BOOST_TARGET_LIBS})
