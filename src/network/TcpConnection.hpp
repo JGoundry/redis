@@ -6,6 +6,9 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/streambuf.hpp>
 
+namespace network
+{
+
 class TcpConnection : public std::enable_shared_from_this< TcpConnection >
 {
     struct Private{ explicit Private() = default; };
@@ -23,3 +26,5 @@ private:
     boost::asio::ip::tcp::socket socket_;
     boost::asio::streambuf streambuf_;
 };
+
+} // namespace network

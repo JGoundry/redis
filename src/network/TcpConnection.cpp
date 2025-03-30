@@ -7,6 +7,9 @@
 
 #include <iostream>
 
+namespace network
+{
+
 TcpConnection::TcpConnection( const Private, boost::asio::io_context& ctx ) : socket_( ctx )
 {
 }
@@ -38,3 +41,5 @@ void TcpConnection::start()
         }
     } );
 }
+
+} // namespace network

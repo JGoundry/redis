@@ -16,7 +16,8 @@ set(BOOST_REQUIRED_COMPONENTS container system regex)
 set(BOOST_TARGET_LIBS         Boost::container Boost::system Boost::regex)
 
 # Files
-file(GLOB SERVER_SOURCE_FILES src/*.cpp src/*.hpp src/*.c src/*.h)
+# TODO: Create CMakeLists.txt for each lib
+file(GLOB SERVER_SOURCE_FILES src/*.cpp src/*.hpp src/*.c src/*.h src/network/*.cpp src/network/*.hpp src/network/*.c src/network/*.h)
 
 # Executables
 add_executable(${SERVER} ${SERVER_SOURCE_FILES})

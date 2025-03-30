@@ -7,6 +7,9 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/placeholders.hpp>
 
+namespace network
+{
+
 template< typename TcpConnection >
 class TcpConnectionAcceptor
 {
@@ -60,3 +63,5 @@ private:
     boost::asio::io_context ctx_;
     boost::asio::ip::tcp::acceptor acceptor_;
 };
+
+} // namespace network

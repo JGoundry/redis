@@ -1,7 +1,7 @@
 // Created by Josh Goundry on 29/03/25
 
-#include "TcpConnection.hpp"
-#include "TcpConnectionAcceptor.hpp"
+#include "network/TcpConnection.hpp"
+#include "network/TcpConnectionAcceptor.hpp"
 
 #include <iostream>
 #include <stdexcept>
@@ -13,7 +13,7 @@ int main( int argc, char* argv[] )
         std::cout << "Starting server...\n";
 
         // Connection server should be placed on a seperate thread
-        TcpConnectionAcceptor< TcpConnection > connectionAcceptor( 6379 /* port */ );
+        network::TcpConnectionAcceptor< network::TcpConnection > connectionAcceptor( 6379 /* port */ );
         connectionAcceptor.StartAsync();
     }
     catch ( std::runtime_error& e )
