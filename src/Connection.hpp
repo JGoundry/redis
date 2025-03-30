@@ -8,8 +8,12 @@
 
 class Connection : public std::enable_shared_from_this< Connection >
 {
+    struct Private{ explicit Private() = default; };
+
 public:
-    explicit Connection( boost::asio::io_context& ctx );
+    Connection( const Private, boost::asio::io_context& ctx );
+
+    static std::shared_ptr< Connection > create( boost::asio::io_context& ctx );
 
     boost::asio::ip::tcp::socket& socket();
 

@@ -27,7 +27,7 @@ void ConnectionServer::StartAsync()
 void ConnectionServer::StartAccept()
 {
 
-    std::shared_ptr< Connection > connection = std::make_shared< Connection >( ctx_ );
+    std::shared_ptr< Connection > connection = Connection::create(ctx_);
     acceptor_.async_accept( connection->socket(), std::bind( &ConnectionServer::HandleAccept, this, connection, boost::asio::placeholders::error ) );
 }
 

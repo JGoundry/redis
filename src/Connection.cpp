@@ -7,8 +7,13 @@
 
 #include <iostream>
 
-Connection::Connection( boost::asio::io_context& ctx ) : socket_( ctx )
+Connection::Connection( const Private, boost::asio::io_context& ctx ) : socket_( ctx )
 {
+}
+
+std::shared_ptr< Connection > Connection::create( boost::asio::io_context& ctx )
+{
+    return std::make_shared< Connection >( Private(), ctx );
 }
 
 boost::asio::ip::tcp::socket& Connection::socket()
