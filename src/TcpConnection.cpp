@@ -1,27 +1,27 @@
 // Created by Josh Goundry on 30/03/25
 
-#include "Connection.hpp"
+#include "TcpConnection.hpp"
 
 #include <boost/asio/placeholders.hpp>
 #include <boost/asio/read_until.hpp>
 
 #include <iostream>
 
-Connection::Connection( const Private, boost::asio::io_context& ctx ) : socket_( ctx )
+TcpConnection::TcpConnection( const Private, boost::asio::io_context& ctx ) : socket_( ctx )
 {
 }
 
-std::shared_ptr< Connection > Connection::create( boost::asio::io_context& ctx )
+std::shared_ptr< TcpConnection > TcpConnection::create( boost::asio::io_context& ctx )
 {
-    return std::make_shared< Connection >( Private(), ctx );
+    return std::make_shared< TcpConnection >( Private(), ctx );
 }
 
-boost::asio::ip::tcp::socket& Connection::socket()
+boost::asio::ip::tcp::socket& TcpConnection::socket()
 {
     return socket_;
 }
 
-void Connection::start()
+void TcpConnection::start()
 {
     boost::asio::async_read_until( socket_, streambuf_, "\n", [self = shared_from_this()]( const boost::system::error_code& ec, std::size_t bytes_transferred ) {
         if ( !ec )
