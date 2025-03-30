@@ -16,7 +16,7 @@ set(BOOST_REQUIRED_COMPONENTS container system regex)
 set(BOOST_TARGET_LIBS         Boost::container Boost::system Boost::regex)
 
 # Files
-file(GLOB SERVER_SOURCE_FILES src/*.cpp)
+file(GLOB SERVER_SOURCE_FILES src/*.cpp src/*.hpp src/*.c src/*.h)
 
 # Executables
 add_executable(${SERVER} ${SERVER_SOURCE_FILES})
