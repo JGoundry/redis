@@ -12,12 +12,11 @@ set(CLIENT client)
 
 # Library vars
 set(BOOST_MIN_VERSION         1.87)
-set(BOOST_REQUIRED_COMPONENTS container system regex)
-set(BOOST_TARGET_LIBS         Boost::container Boost::system Boost::regex)
+set(BOOST_REQUIRED_COMPONENTS container system )
+set(BOOST_TARGET_LIBS         Boost::container )
 
 # Files
-# TODO: Create CMakeLists.txt for each lib
-file(GLOB SERVER_SOURCE_FILES src/*.cpp src/*.hpp src/*.c src/*.h src/network/*.cpp src/network/*.hpp src/network/*.c src/network/*.h)
+file(GLOB SERVER_SOURCE_FILES src/*.cpp src/*.hpp src/*.c src/*.h)
 
 # Executables
 add_executable(${SERVER} ${SERVER_SOURCE_FILES})

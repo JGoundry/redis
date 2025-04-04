@@ -1,5 +1,7 @@
 // Created by Josh Goundry on 29/03/25
 
+#pragma once
+
 #include <iostream>
 #include <memory>
 
@@ -7,18 +9,15 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/placeholders.hpp>
 
-namespace network
-{
-
-template< typename TcpConnection >
-class TcpConnectionAcceptor
+template< typename ConnectionHandler >
+class TcpServer
 {
 public:
-    explicit TcpConnectionAcceptor( const int port ) : acceptor_( ctx_, boost::asio::ip::tcp::endpoint( boost::asio::ip::tcp::v4(), port ) )
+    explicit TcpServer( const int port ) : acceptor_( ctx_, boost::asio::ip::tcp::endpoint( boost::asio::ip::tcp::v4(), port ) )
     {
     }
 
-    ~TcpConnectionAcceptor()
+    ~TcpServer()
     {
         if ( !ctx_.stopped() )
         {
@@ -38,10 +37,10 @@ private:
     void StartAccept()
     {
 
-        std::shared_ptr< TcpConnection > connection = TcpConnection::create( ctx_ );
-        acceptor_.async_accept( connection->socket(), std::bind( &TcpConnectionAcceptor::HandleAccept, this, connection, boost::asio::placeholders::error ) );
+        std::shared_ptr< ConnectionHandler > connection = ConnectionHandler::create( ctx_ );
+        acceptor_.async_accept( connection->socket(), std::bind( &TcpServer::HandleAccept, this, connection, boost::asio::placeholders::error ) );
     }
-    void HandleAccept( const std::shared_ptr< TcpConnection >& connection, const boost::system::error_code& ec )
+    void HandleAccept( const std::shared_ptr< ConnectionHandler >& connection, const boost::system::error_code& ec )
     {
         if ( !ec )
         {
@@ -54,7 +53,7 @@ private:
 
         StartAccept();
     }
-    void HandleRequest( const std::shared_ptr< TcpConnection >& connection )
+    void HandleRequest( const std::shared_ptr< ConnectionHandler >& connection )
     {
         connection->start();
     }
@@ -63,5 +62,3 @@ private:
     boost::asio::io_context ctx_;
     boost::asio::ip::tcp::acceptor acceptor_;
 };
-
-} // namespace network
