@@ -3,6 +3,7 @@
 #include "parseRespRequest.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cctype>
 #include <charconv>
 #include <iostream>
@@ -12,6 +13,13 @@
 
 namespace resp
 {
+namespace
+{
+
+// RESP packets use the '\r\n' delimiter
+static constexpr std::array< char, 4 > delim = { '\\', 'r', '\\', 'n' };
+
+} // anonymous namespace
 
 std::optional< int > parseInt( const char* first, const char* last )
 {
@@ -28,6 +36,80 @@ std::optional< int > parseInt( const char* first, const char* last )
     return num;
 }
 
+template< typename Iterator >
+std::optional< std::string > getCommand( Iterator& currentIt, const Iterator& end, const int commandLen )
+{
+    std::string command;
+    command.reserve( commandLen );
+    for ( int commandLenRemaining = commandLen;
+          commandLenRemaining > 0 && currentIt != end;
+          --commandLenRemaining, ++currentIt )
+    {
+        command.push_back( *currentIt );
+    }
+
+    // TODO: refactor this to check that we actually do get a full command
+
+    return command;
+}
+
+template< typename Iterator >
+inline Iterator findDelimIt( const Iterator& currentIt, const Iterator& end )
+{
+    return std::search( currentIt, end, delim.begin(), delim.end() );
+}
+
+template< typename Iterator >
+inline bool advanceCurrentItPastDelim( Iterator& currentIt, const Iterator& end, const Iterator& delimFindIt )
+{
+    currentIt = delimFindIt;
+    std::advance( currentIt, delim.size() );
+    return currentIt != end;
+}
+
+template< typename Iterator >
+std::optional< int > getLengthAfterPrefix( Iterator& currentIt,
+                                           const Iterator& end,
+                                           const char prefix,
+                                           const bool advanceItPastDelim )
+{
+    if ( *currentIt != prefix )
+        return std::nullopt;
+
+    currentIt = std::next( currentIt );
+
+    // find delim
+    auto delimFindIt = findDelimIt( currentIt, end );
+    if ( delimFindIt == end )
+        return std::nullopt;
+
+    std::optional< int > len = parseInt( currentIt.base(), delimFindIt.base() );
+    if ( !len )
+        return std::nullopt;
+
+    if ( advanceItPastDelim &&
+         !advanceCurrentItPastDelim( currentIt, end, delimFindIt ) )
+        return std::nullopt;
+
+    return len;
+}
+
+template< typename Iterator >
+std::optional< int > getBulkStringLength( Iterator& currentIt,
+                                          const Iterator& end,
+                                          const bool advanceItPastDelim )
+{
+    return getLengthAfterPrefix( currentIt, end, '$', advanceItPastDelim );
+}
+
+template< typename Iterator >
+std::optional< int > getArrayLength( Iterator& currentIt,
+                                     const Iterator& end,
+                                     const bool advanceItPastDelim )
+{
+    return getLengthAfterPrefix( currentIt, end, '*', advanceItPastDelim );
+}
+
 // each request will come in as an array
 // "*2\r\n$3\r\nGET\r\n$5\r\nmykey\r\n"
 // sizeof array: 2 \r\n command: GET \r\n sizeof bulk string: 5 \r\n
@@ -36,71 +118,46 @@ bool parseRespRequest( const std::vector< char >& data, resp::Request& request )
     if ( data.empty() )
         return false;
 
-    // RESP packets use the '\r\n' delimiter
-    const std::vector< char > delim = { '\\', 'r', '\\', 'n' };
-
     auto currentIt = data.begin();
 
-    // 1. Check request starts with * to signify array
-    if ( *currentIt != '*' )
-        return false;
+    // ----------------------------------------------------
+    // 1. Get the array len which comes after *
+    // ----------------------------------------------------
 
-    currentIt = std::next( currentIt );
-    std::cout << "Advanced currentIt to: " << *currentIt << '\n';
-
-    // 2. Get the array len which comes after *
-    auto delimFindIt = std::search( currentIt, data.end(), delim.begin(), delim.end() );
-    if ( delimFindIt == data.end() )
-        return false;
-
-    std::optional< int > arrayLen = parseInt( currentIt.base(), delimFindIt.base() );
+    std::optional< int > arrayLen = getArrayLength( currentIt,
+                                                    data.end(),
+                                                    /*advanceItPastDelim=*/true );
     if ( !arrayLen )
         return false;
     request.arrayLen = *arrayLen;
 
     std::cout << "Found array len: " << *arrayLen << '\n';
+    std::cout << "CurrentIt: " << *currentIt << '\n';
 
-    // Advance iterator past the delim
-    currentIt = delimFindIt;
-    std::advance( currentIt, delim.size() );
-    if ( currentIt == data.end() )
-        return false;
+    // ----------------------------------------------------
+    // 2. Get the bulk string size specifier, starts with $
+    // ----------------------------------------------------
 
-    std::cout << "Advanced currentIt to: " << *currentIt << '\n';
-
-    // 3. Get the bulk string size specifier, starts with $
-    if ( *currentIt != '$' )
-        return false;
-    currentIt = std::next( currentIt );
-
-    // find delim
-    delimFindIt = std::search( currentIt, data.end(), delim.begin(), delim.end() );
-    if ( delimFindIt == data.end() )
-        return false;
-
-    std::optional< int > commandLen = parseInt( currentIt.base(), delimFindIt.base() );
+    std::optional< int > commandLen = getBulkStringLength( currentIt,
+                                                           data.end(),
+                                                           /*advanceItPastDelim=*/true );
     if ( !commandLen )
         return false;
 
-    std::cout << "Found command len: " << *arrayLen << '\n';
+    std::cout << "Found command len: " << *commandLen << '\n';
+    std::cout << "CurrentIt: " << *currentIt << '\n';
 
-    // Advance iterator past the delim
-    currentIt = delimFindIt;
-    std::advance( currentIt, delim.size() );
-    if ( currentIt == data.end() )
+    std::optional< std::string > command = getCommand( currentIt, data.end(), *commandLen );
+    if ( !command )
         return false;
 
-    std::string command;
-    command.reserve( *commandLen );
+    std::cout << "Command is: " << *command << '\n';
 
-    for ( int commandLenRemaining = *commandLen;
-          commandLenRemaining > 0 && currentIt != data.end();
-          --commandLenRemaining, ++currentIt )
-    {
-        command.push_back( *currentIt );
-    }
-
-    std::cout << "Command is: " << command << '\n';
+    // ----------------------------------------------------
+    // 3. Do some confirmation to check \r\n is next
+    //    Check array length matches command
+    //    Do some loop to collect remaining args
+    // ----------------------------------------------------
 
     return true;
 }
