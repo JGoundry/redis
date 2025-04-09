@@ -2,7 +2,8 @@
 
 #pragma once
 
-#include "RespTypes.hpp"
+// TODO: Fix CMakeLists.txt to elid '..' in local includes
+#include "../resp/RespTypes.hpp"
 
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/ip/tcp.hpp>
@@ -11,7 +12,10 @@
 #include <memory>
 #include <optional>
 
-// boost::asio tcp connection handler for the RESP2 protocol
+namespace network
+{
+
+// boost::asio tcp connection handler for the RESP protocol
 class RespHandler : public std::enable_shared_from_this< RespHandler >
 {
     struct Private
@@ -34,3 +38,5 @@ private:
     boost::asio::ip::tcp::socket socket_;
     std::vector< char > data_;
 };
+
+}

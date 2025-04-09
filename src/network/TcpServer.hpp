@@ -9,6 +9,9 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/placeholders.hpp>
 
+namespace network
+{
+
 template< typename ConnectionHandler >
 class TcpServer
 {
@@ -62,3 +65,5 @@ private:
     boost::asio::io_context ctx_;
     boost::asio::ip::tcp::acceptor acceptor_;
 };
+
+}

@@ -15,6 +15,9 @@
 #include <iostream>
 #include <optional>
 
+namespace network
+{
+
 RespHandler::RespHandler( const Private, boost::asio::io_context& ctx ) : socket_( ctx )
 {
     data_.reserve( 1024 );
@@ -59,4 +62,6 @@ void RespHandler::readPacket( std::optional< resp::Request > inProgress )
         // continue reading
         self->readPacket();
     } );
+}
+
 }

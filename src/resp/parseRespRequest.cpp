@@ -1,6 +1,7 @@
 // Created by Josh Goundry on 04/04/25
 
 #include "parseRespRequest.hpp"
+#include "RespTypes.hpp"
 
 #include <algorithm>
 #include <array>
@@ -18,8 +19,6 @@ namespace
 
 // RESP packets use the '\r\n' delimiter
 static constexpr std::array< char, 4 > delim = { '\\', 'r', '\\', 'n' };
-
-} // anonymous namespace
 
 std::optional< int > parseInt( const char* first, const char* last )
 {
@@ -110,6 +109,8 @@ std::optional< int > getArrayLength( Iterator& currentIt,
     return getLengthAfterPrefix( currentIt, end, '*', advanceItPastDelim );
 }
 
+} // anonymous namespace
+
 // each request will come in as an array
 // "*2\r\n$3\r\nGET\r\n$5\r\nmykey\r\n"
 // sizeof array: 2 \r\n command: GET \r\n sizeof bulk string: 5 \r\n
@@ -119,45 +120,70 @@ bool parseRespRequest( const std::vector< char >& data, resp::Request& request )
         return false;
 
     auto currentIt = data.begin();
+    const auto& endIt = data.end();
 
     // ----------------------------------------------------
     // 1. Get the array len which comes after *
     // ----------------------------------------------------
 
-    std::optional< int > arrayLen = getArrayLength( currentIt,
-                                                    data.end(),
-                                                    /*advanceItPastDelim=*/true );
-    if ( !arrayLen )
-        return false;
-    request.arrayLen = *arrayLen;
+    int remainingArrayLen;
+    {
+        std::optional< int > arrayLen = getArrayLength( currentIt,
+                                                        endIt,
+                                                        /*advanceItPastDelim=*/true );
+        if ( !arrayLen )
+            return false;
 
-    std::cout << "Found array len: " << *arrayLen << '\n';
-    std::cout << "CurrentIt: " << *currentIt << '\n';
+        request.arrayLen = *arrayLen;
+        remainingArrayLen = *arrayLen;
+
+        std::cout << "Found array len: " << *arrayLen << '\n';
+        std::cout << "CurrentIt: " << *currentIt << '\n';
+    }
 
     // ----------------------------------------------------
     // 2. Get the bulk string size specifier, starts with $
     // ----------------------------------------------------
 
-    std::optional< int > commandLen = getBulkStringLength( currentIt,
-                                                           data.end(),
-                                                           /*advanceItPastDelim=*/true );
-    if ( !commandLen )
-        return false;
+    {
+        std::optional< int > commandLen = getBulkStringLength( currentIt,
+                                                               endIt,
+                                                               /*advanceItPastDelim=*/true );
+        if ( !commandLen )
+            return false;
 
-    std::cout << "Found command len: " << *commandLen << '\n';
-    std::cout << "CurrentIt: " << *currentIt << '\n';
+        std::cout << "Found command len: " << *commandLen << '\n';
+        std::cout << "CurrentIt: " << *currentIt << '\n';
 
-    std::optional< std::string > command = getCommand( currentIt, data.end(), *commandLen );
-    if ( !command )
-        return false;
+        std::optional< std::string > commandStr = getCommand( currentIt, endIt, *commandLen );
+        if ( !commandStr )
+            return false;
 
-    std::cout << "Command is: " << *command << '\n';
+        request.cmd = resp::stringToCommand( *commandStr );
+        if ( request.cmd == resp::COMMAND::UNKNOWN )
+            return false;
+
+        std::cout << "Command is: " << *commandStr << '\n';
+        std::cout << "CurrentIt: " << *currentIt << '\n';
+
+        // If the command was the correct size specified by bulk string length
+        // then the currentIt should be the begging of the '\r\n' delim
+        const auto delimFindIt = findDelimIt( currentIt, endIt );
+        if ( currentIt != delimFindIt )
+            return false;
+
+        --remainingArrayLen;
+    }
 
     // ----------------------------------------------------
-    // 3. Do some confirmation to check \r\n is next
-    //    Check array length matches command
-    //    Do some loop to collect remaining args
+    // 3. Loop to collect remaining args if there is any
     // ----------------------------------------------------
+
+    while ( remainingArrayLen )
+    {
+
+        --remainingArrayLen;
+    }
 
     return true;
 }

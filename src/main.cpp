@@ -1,7 +1,7 @@
 // Created by Josh Goundry on 29/03/25
 
-#include "TcpServer.hpp"
-#include "RespHandler.hpp"
+#include "network/TcpServer.hpp"
+#include "network/RespHandler.hpp"
 
 #include <iostream>
 #include <stdexcept>
@@ -12,7 +12,7 @@ int main( int argc, char* argv[] )
     {
         std::cout << "Starting server...\n";
 
-        TcpServer< RespHandler > server( 6379 /* port */ );
+        network::TcpServer< network::RespHandler > server( 6379 /* port */ );
         server.StartAsync();
     }
     catch ( std::runtime_error& e )
