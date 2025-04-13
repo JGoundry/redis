@@ -221,8 +221,6 @@ bool parseRespRequest( const std::vector< char >& data, resp::Request& request )
         return false;
     }
 
-    std::cout << "CurrentIt:    " << *currentIt << '\n';
-
     // If the command was the correct size specified by bulk string length
     // then the currentIt should be the begging of the '\r\n' delim
     auto delimFindIt = findDelimIt( currentIt, endIt );

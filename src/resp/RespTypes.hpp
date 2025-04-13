@@ -20,6 +20,19 @@ enum class COMMAND : uint8_t
 struct Request
 {
     Request() : arrayLen( 0 ), cmd( COMMAND::UNKNOWN ) {}
+    Request( const int arrayLen, const COMMAND cmd, const std::vector< std::string >& args )
+        : arrayLen( arrayLen ), cmd( cmd ), args( args ) {}
+
+    bool operator==( const Request& rhs ) const
+    {
+        if ( arrayLen != rhs.arrayLen )
+            return false;
+
+        if ( cmd != rhs.cmd )
+            return false;
+
+        return args == rhs.args;
+    }
 
     int arrayLen;
     COMMAND cmd;
