@@ -1,7 +1,8 @@
 // Created by Josh Goundry on 30/03/25
 
 #include "RespHandler.hpp"
-#include "parseRespRequest.hpp"
+
+#include "resp/parseRespRequest.hpp"
 
 #include <boost/asio/buffer.hpp>
 #include <boost/asio/buffers_iterator.hpp>
