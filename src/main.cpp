@@ -1,7 +1,7 @@
 // Created by Josh Goundry on 29/03/25
 
-#include "network/TcpServer.hpp"
 #include "network/RespHandler.hpp"
+#include "network/TcpServer.hpp"
 
 #include <iostream>
 #include <stdexcept>

@@ -1,7 +1,6 @@
 // Created by Josh Goundry on 30/03/25
 
 #include "RespHandler.hpp"
-
 #include "parseRespRequest.hpp"
 
 #include <boost/asio/buffer.hpp>
@@ -53,16 +52,17 @@ void RespHandler::readPacket( std::optional< resp::Request > inProgress )
         const bool success = resp::parseRespRequest( self->data_, request );
         self->data_.clear();
 
+        std::cout << request << '\n';
+
         if ( success )
         {
             std::cout << "Successfully parsed packet\n";
+            // handle request
         }
         else
         {
             std::cout << "Failed parsing packet\n";
         }
-
-        std::cout << request << '\n';
 
         // continue reading
         self->readPacket();

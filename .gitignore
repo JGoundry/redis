@@ -38,6 +38,9 @@
 ### Build Dir ###
 build/
 
+### Cache Dir ###
+.cache/
+
 ### CMake ###
 CMakeLists.txt.user
 CMakeCache.txt

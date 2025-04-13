@@ -2,8 +2,7 @@
 
 #pragma once
 
-// TODO: Fix CMakeLists.txt to elid '..' in local includes
-#include "../resp/RespTypes.hpp"
+#include "RespTypes.hpp"
 
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/ip/tcp.hpp>
@@ -39,4 +38,4 @@ private:
     std::vector< char > data_;
 };
 
-}
+} //namespace network
