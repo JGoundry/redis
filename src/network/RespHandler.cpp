@@ -48,20 +48,25 @@ void RespHandler::readPacket( std::optional< resp::Request > inProgress )
             return;
         }
 
-        // parse packet until we get a full request
         resp::Request request;
 
         const bool success = resp::parseRespRequest( self->data_, request );
         self->data_.clear();
 
         if ( success )
+        {
             std::cout << "Successfully parsed packet\n";
+        }
         else
+        {
             std::cout << "Failed parsing packet\n";
+        }
+
+        std::cout << request << '\n';
 
         // continue reading
         self->readPacket();
     } );
 }
 
-}
+} //namespace network

@@ -10,6 +10,7 @@ namespace resp
 {
 
 // Request parser for the RESP2 protocol
+// Currently parses requests in full, no partial requests
 bool parseRespRequest( const std::vector< char >& data, resp::Request& request );
 
 } // namespace resp

@@ -3,6 +3,7 @@
 #pragma once
 
 #include <cstdint>
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -18,6 +19,8 @@ enum class COMMAND : uint8_t
 
 struct Request
 {
+    Request() : arrayLen( 0 ), cmd( COMMAND::UNKNOWN ) {}
+
     int arrayLen;
     COMMAND cmd;
     std::vector< std::string > args;
@@ -25,5 +28,8 @@ struct Request
 
 COMMAND stringToCommand( const std::string& commandStr );
 std::string commandToString( const COMMAND command );
+int commandToArrayLen( const COMMAND command );
+
+std::ostream& operator<<( std::ostream& os, const Request& request );
 
 } // namespace resp

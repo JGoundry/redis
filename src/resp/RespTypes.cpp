@@ -25,16 +25,40 @@ COMMAND stringToCommand( const std::string& commandStr )
 
 std::string commandToString( const COMMAND command )
 {
-    switch (command)
+    switch ( command )
     {
-        case COMMAND::GET:
-            return "GET";
-        case COMMAND::SET:
-            return "SET";
-        case COMMAND::UNKNOWN:
-            return "UNKNOWN";
+    case COMMAND::GET:
+        return "GET";
+    case COMMAND::SET:
+        return "SET";
+    case COMMAND::UNKNOWN:
+        return "UNKNOWN";
     }
 }
 
+int commandToArrayLen( const COMMAND command )
+{
+    switch ( command )
+    {
+    case COMMAND::GET:
+        return 2;
+    case COMMAND::SET:
+        return 3;
+    case COMMAND::UNKNOWN:
+        return 0;
+    }
+}
+
+std::ostream& operator<<( std::ostream& os, const Request& request )
+{
+    os << commandToString( request.cmd );
+
+    for ( const std::string& arg : request.args )
+    {
+        os << ' ' << arg;
+    }
+
+    return os;
+}
 
 } // namespace resp
